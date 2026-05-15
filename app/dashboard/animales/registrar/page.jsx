@@ -1,17 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { ArrowLeft } from "lucide-react";
 import NotificationModal from "@/components/NotificationModal";
 import { useNotification } from "@/hooks/useNotification";
 
-export default function RegistrarAnimalPage() {
+function RegistrarAnimalForm() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const madre = searchParams.get("madre");
+  const criaNumero = searchParams.get("cría");
   const [grupos, setGrupos] = useState([]);
   const [familias, setFamilias] = useState([]);
   const [error, setError] = useState("");
@@ -86,12 +89,20 @@ export default function RegistrarAnimalPage() {
         tiempoGestacion_ani: esMacho ? 0 : Number(data.tiempoGestacion_ani),
         fechaNacimiento_ani: data.fechaNacimiento_ani || null,
         fechaVacunacion_ani: data.fechaVacunacion_ani || null,
+        codigomadre_ani: madre || null,
       });
+      const nacimientoId = searchParams.get("nacimiento_id");
       notif.show({
         type: "success",
         title: "Animal Registrado",
         message: `El animal "${data.nombre_ani}" ha sido registrado correctamente.`,
-        onConfirm: () => router.push("/dashboard/animales"),
+        onConfirm: () => {
+          if (nacimientoId && madre) {
+            router.push(`/dashboard/nacimiento?nacimiento_id=${nacimientoId}&registrada=${criaNumero}`);
+          } else {
+            router.push("/dashboard/animales");
+          }
+        },
         showCancel: false,
       });
     } catch (err) {
@@ -126,6 +137,21 @@ export default function RegistrarAnimalPage() {
           </p>
         </div>
       </div>
+
+      {madre && (
+        <div
+          className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm animate-fade-in"
+          style={{
+            background: "var(--accent-bg)",
+            border: "1px solid var(--accent)",
+            color: "var(--accent)",
+          }}
+        >
+          <ArrowLeft size={16} className="rotate-135" />
+          Cría de <strong>{madre}</strong>
+          {criaNumero && <> — #{criaNumero}</>}
+        </div>
+      )}
 
       <div
         className="rounded-xl p-6"
@@ -416,5 +442,13 @@ export default function RegistrarAnimalPage() {
 
       <NotificationModal {...notif.notification} />
     </div>
+  );
+}
+
+export default function RegistrarAnimalPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-20" style={{ color: "var(--text-muted)" }}>Cargando...</div>}>
+      <RegistrarAnimalForm />
+    </Suspense>
   );
 }

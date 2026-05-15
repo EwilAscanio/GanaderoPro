@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, Tractor, Droplets, Settings,
   Syringe, Scale, ShoppingCart, UserCircle, Briefcase, FileText,
-  ChevronRight, X, Layers, GitFork, Heart,
+  ChevronRight, X, Layers, GitFork, Heart, Baby,
 } from "lucide-react";
 
 const menuItems = [
@@ -14,6 +14,7 @@ const menuItems = [
   { icon: GitFork, label: "Familias", href: "/dashboard/familia" },
   { icon: Syringe, label: "Vacunacion", href: "/dashboard/vacunacion" },
   { icon: Heart, label: "Palpacion", href: "/dashboard/palpacion" },
+  { icon: Baby, label: "Parto/Nacimiento", href: "/dashboard/nacimiento" },
   { icon: Scale, label: "Peso", href: "/dashboard/peso" },
   { icon: Droplets, label: "Prod. Leche", href: "/dashboard/produccion-leche" },
   { icon: ShoppingCart, label: "Ventas", href: "/dashboard/ventas" },

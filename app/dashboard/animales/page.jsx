@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import {
-  Plus, Pencil, Trash2, Search,
+  Plus, Pencil, Trash2, Search, Sparkles, X,
 } from "lucide-react";
 import NotificationModal from "@/components/NotificationModal";
 import { useNotification } from "@/hooks/useNotification";
@@ -16,6 +16,9 @@ export default function AnimalesPage() {
   const [animales, setAnimales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [criasModal, setCriasModal] = useState(null);
+  const [criasList, setCriasList] = useState([]);
+  const [criasLoading, setCriasLoading] = useState(false);
   const notif = useNotification();
 
   const isAdmin = session?.user?.role === "Administrador";
@@ -185,6 +188,34 @@ export default function AnimalesPage() {
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button
+                        onClick={() => {
+                          if (a.sexo_ani === "Macho") {
+                            notif.show({
+                              type: "info",
+                              title: "Animal Macho",
+                              message: `"${a.nombre_ani}" (${a.codigo_ani}) es macho, no tiene crías registradas.`,
+                              onConfirm: () => notif.close(),
+                              showCancel: false,
+                            });
+                            return;
+                          }
+                          setCriasModal(a);
+                          setCriasLoading(true);
+                          setCriasList([]);
+                          axios.get(`/api/animal/${a.codigo_ani}/crias`).then((res) => {
+                            setCriasList(res.data);
+                            setCriasLoading(false);
+                          }).catch(() => {
+                            setCriasLoading(false);
+                          });
+                        }}
+                        className="p-2 rounded-lg btn-hover"
+                        style={{ color: "var(--accent)" }}
+                        title="Ver crías"
+                      >
+                        <Sparkles size={16} />
+                      </button>
+                      <button
                         onClick={() => router.push(`/dashboard/animales/actualizar/${a.codigo_ani}`)}
                         className="p-2 rounded-lg btn-hover"
                         style={{ color: "var(--accent)" }}
@@ -223,6 +254,106 @@ export default function AnimalesPage() {
           </table>
         </div>
       )}
+
+      {criasModal && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+          onClick={() => setCriasModal(null)}
+        >
+          <div
+            className="w-full max-w-lg rounded-xl p-5 space-y-4 animate-fade-in-up max-h-[80vh] flex flex-col"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center"
+                  style={{ background: "var(--accent-bg)" }}
+                >
+                  <Sparkles size={18} style={{ color: "var(--accent)" }} />
+                </div>
+                <div>
+                  <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
+                    Crías de {criasModal.nombre_ani}
+                  </p>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                    {criasModal.codigo_ani}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setCriasModal(null)}
+                className="p-1.5 rounded-lg btn-hover"
+                style={{ color: "var(--text-muted)" }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto flex-1 -mx-5 px-5 space-y-2">
+              {criasLoading ? (
+                <div className="flex justify-center py-10">
+                  <div
+                    className="w-6 h-6 rounded-full animate-spin"
+                    style={{ border: "2px solid var(--border)", borderTopColor: "var(--accent)" }}
+                  />
+                </div>
+              ) : criasList.length === 0 ? (
+                <p className="text-center py-10 text-sm" style={{ color: "var(--text-muted)" }}>
+                  Este animal no tiene crías registradas.
+                </p>
+              ) : (
+                criasList.map((c) => (
+                  <div
+                    key={c.codigo_ani}
+                    className="flex items-center gap-3 p-3 rounded-lg"
+                    style={{ background: "var(--bg-secondary)" }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                      style={{ background: "var(--accent)" }}
+                    >
+                      {c.nombre_ani?.charAt(0)?.toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm" style={{ color: "var(--text-primary)" }}>
+                        {c.nombre_ani}
+                      </p>
+                      <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                        {c.codigo_ani} — {c.name_gru} — {c.sexo_ani}
+                      </p>
+                    </div>
+                    <span
+                      className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium shrink-0"
+                      style={{
+                        background: c.status_ani === "Activo" ? "#f0fdf4" : "#fef2f2",
+                        color: c.status_ani === "Activo" ? "#16a34a" : "#dc2626",
+                      }}
+                    >
+                      {c.status_ani}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button
+              onClick={() => setCriasModal(null)}
+              className="w-full py-2.5 rounded-lg text-sm font-medium btn-hover"
+              style={{
+                background: "var(--bg-secondary)",
+                color: "var(--text-secondary)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
       <NotificationModal {...notif.notification} />
     </div>
   );

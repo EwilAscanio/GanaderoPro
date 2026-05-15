@@ -55,6 +55,11 @@ CREATE TABLE animal (
   CONSTRAINT FK_AnimalFamilia FOREIGN KEY (codigo_fam) REFERENCES familia(codigo_fam)
 );
 
+ALTER TABLE animal
+ADD COLUMN codigomadre_ani varchar(15) NULL,
+ADD CONSTRAINT fk_animal_madre
+  FOREIGN KEY (codigomadre_ani) REFERENCES animal(codigo_ani);
+
 INSERT INTO grupo(name_gru) VALUES('BUFALINOS')
 INSERT INTO grupo(name_gru) VALUES('BOBINOS')
 INSERT INTO grupo(name_gru) VALUES('EQUINOS')
@@ -135,5 +140,18 @@ CREATE TABLE detalle_factura (
   CONSTRAINT fk_detalle_factura 
     FOREIGN KEY (numero_fac) REFERENCES factura(numero_fac),
   CONSTRAINT fk_animal_detalle 
+    FOREIGN KEY (codigo_ani) REFERENCES animal(codigo_ani)
+);
+
+
+CREATE TABLE nacimiento (
+  id_nac integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  codigo_ani varchar(15) NOT NULL,
+  fecha_nac date NOT NULL,
+  cantidadHijos_nac integer NOT NULL DEFAULT 0,
+  observaciones_nac varchar(250),
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  
+  CONSTRAINT fk_nacimiento_animal 
     FOREIGN KEY (codigo_ani) REFERENCES animal(codigo_ani)
 );

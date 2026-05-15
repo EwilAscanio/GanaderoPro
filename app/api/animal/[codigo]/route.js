@@ -16,8 +16,8 @@ export async function GET(request, { params }) {
               a.codigo_fam, f.name_fam, a.sexo_ani, a.fechapalpacion_ani,
               a.tiempogestacion_ani, a.peso_ani, a.arete_ani,
               a.fechanacimiento_ani, a.fechavacunacion_ani, a.status_ani,
-              a.precio_ani, a.existencia, a.created_at
-       FROM animal a
+               a.precio_ani, a.existencia, a.codigomadre_ani, a.created_at
+        FROM animal a
        JOIN grupo g ON a.id_gru = g.id_gru
        JOIN familia f ON a.codigo_fam = f.codigo_fam
        WHERE a.codigo_ani = $1`,
@@ -47,7 +47,8 @@ export async function PUT(request, { params }) {
     const {
       nombre_ani, chip_ani, id_gru, codigo_fam, sexo_ani,
       fechapalpacion_ani, tiempogestacion_ani, peso_ani, arete_ani,
-      fechanacimiento_ani, fechavacunacion_ani, status_ani, precio_ani, existencia
+      fechanacimiento_ani, fechavacunacion_ani, status_ani, precio_ani, existencia,
+      codigomadre_ani
     } = body;
 
     const updateFields = [];
@@ -109,6 +110,10 @@ export async function PUT(request, { params }) {
     if (existencia !== undefined) {
       updateFields.push(`existencia = $${idx++}`);
       values.push(existencia);
+    }
+    if (codigomadre_ani !== undefined) {
+      updateFields.push(`codigomadre_ani = $${idx++}`);
+      values.push(codigomadre_ani?.trim()?.toUpperCase() || null);
     }
 
     if (updateFields.length === 0) {

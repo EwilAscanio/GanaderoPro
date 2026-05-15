@@ -15,8 +15,8 @@ export async function GET() {
               a.codigo_fam, f.name_fam, a.sexo_ani, a.fechaPalpacion_ani,
               a.tiempoGestacion_ani, a.peso_ani, a.arete_ani,
               a.fechaNacimiento_ani, a.fechaVacunacion_ani, a.status_ani,
-              a.precio_ani, a.existencia, a.created_at
-       FROM animal a
+               a.precio_ani, a.existencia, a.codigomadre_ani, a.created_at
+        FROM animal a
        JOIN grupo g ON a.id_gru = g.id_gru
        JOIN familia f ON a.codigo_fam = f.codigo_fam
        ORDER BY a.codigo_ani`
@@ -40,7 +40,8 @@ export async function POST(request) {
     const {
       codigo_ani, nombre_ani, chip_ani, id_gru, codigo_fam, sexo_ani,
       fechaPalpacion_ani, tiempoGestacion_ani, peso_ani, arete_ani,
-      fechaNacimiento_ani, fechaVacunacion_ani, status_ani, precio_ani, existencia
+      fechaNacimiento_ani, fechaVacunacion_ani, status_ani, precio_ani, existencia,
+      codigomadre_ani
     } = body;
 
     if (!codigo_ani || !codigo_ani.trim()) {
@@ -76,15 +77,17 @@ export async function POST(request) {
     const result = await query(
       `INSERT INTO animal (codigo_ani, nombre_ani, chip_ani, id_gru, codigo_fam, sexo_ani,
         fechaPalpacion_ani, tiempoGestacion_ani, peso_ani, arete_ani,
-        fechaNacimiento_ani, fechaVacunacion_ani, status_ani, precio_ani, existencia)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+        fechaNacimiento_ani, fechaVacunacion_ani, status_ani, precio_ani, existencia,
+        codigomadre_ani)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
        RETURNING codigo_ani`,
       [
         codigo_ani.trim().toUpperCase(), nombre_ani.trim(), chip_ani, id_gru,
         codigo_fam.trim().toUpperCase(), sexo_ani.trim(),
         fechaPalpacion_ani || null, tiempoGestacion_ani || 0, peso_ani || 0,
         arete_ani.trim(), fechaNacimiento_ani || null, fechaVacunacion_ani || null,
-        status_ani || null, precio_ani || 0, existencia || 0
+        status_ani || null, precio_ani || 0, existencia || 0,
+        codigomadre_ani?.trim()?.toUpperCase() || null
       ]
     );
 
