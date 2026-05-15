@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -105,11 +106,13 @@ export default function RegisterPage() {
       >
         {/* Image left */}
         <div className="hidden lg:block relative w-1/2 overflow-hidden group">
-          <img
+          <Image
             src="/IniciodeSesion.webp"
             alt="Ganadería"
-            className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105"
-            style={{ borderRadius: 0 }}
+            fill
+            sizes="50vw"
+            priority
+            className="object-cover transition-all duration-700 ease-out group-hover:scale-105"
           />
           <div className="absolute inset-0 transition-opacity duration-500"
             style={{
@@ -364,8 +367,6 @@ export default function RegisterPage() {
               )}
             </button>
           </form>
-
-          
         </div>
       </div>
 

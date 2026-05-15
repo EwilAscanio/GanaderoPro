@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -92,11 +93,13 @@ export default function LoginPage() {
       >
         {/* Image left */}
         <div className="hidden lg:block relative w-1/2 overflow-hidden group">
-          <img
+          <Image
             src="/IniciodeSesion.webp"
             alt="Ganadería"
-            className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105"
-            style={{ borderRadius: 0 }}
+            fill
+            sizes="50vw"
+            priority
+            className="object-cover transition-all duration-700 ease-out group-hover:scale-105"
           />
           <div className="absolute inset-0 transition-opacity duration-500"
             style={{
@@ -238,7 +241,19 @@ export default function LoginPage() {
             </button>
           </form>
 
-          
+          <div
+            className="p-3 rounded-lg text-center text-xs leading-relaxed"
+            style={{
+              background: "var(--bg-secondary)",
+              border: "1px solid var(--border)",
+              color: "var(--text-muted)",
+            }}
+          >
+            Para acceder al sistema puede utilizarse <br />
+            <strong style={{ color: "var(--text-primary)" }}>Usuario:</strong> demo{" "}
+            <strong style={{ color: "var(--text-primary)" }}>Clave:</strong> 123456
+          </div>
+
         </div>
       </div>
 
