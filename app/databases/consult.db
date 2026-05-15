@@ -1,0 +1,139 @@
+CREATE DATABASE `db_ganadero`
+
+
+INSERT INTO roles (name_rol) VALUES ('Administrador');
+INSERT INTO roles (name_rol) VALUES ('Usuario');
+
+CREATE TABLE roles (
+  id_rol SERIAL PRIMARY KEY,
+  name_rol VARCHAR(50) DEFAULT 'Usuario'
+);
+CREATE TABLE users (
+  id_usr SERIAL PRIMARY KEY,
+  name_usr varchar(100) NOT NULL,
+  login_usr varchar(100) NOT NULL,
+  email_usr varchar(50) NOT NULL,
+  password_usr varchar(200) NOT NULL,
+  id_rol integer NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT FK_UserRol FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
+);
+
+
+CREATE TABLE grupo (
+  id_gru integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name_gru varchar(50) NOT NULL,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE familia (
+  id_gru integer NOT NULL,
+  codigo_fam varchar(5) PRIMARY KEY NOT NULL,
+  name_fam varchar(50) NOT NULL,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT FK_FamiliaGrupo FOREIGN KEY (id_gru) REFERENCES grupo(id_gru)
+);
+
+CREATE TABLE animal (
+  codigo_ani varchar(15) PRIMARY KEY,
+  nombre_ani varchar(100) NOT NULL,
+  chip_ani integer NOT NULL,
+  id_gru integer NOT NULL,
+  codigo_fam varchar(5) NOT NULL,
+  sexo_ani varchar(50) NOT NULL,
+  fechaPalpacion_ani date,
+  tiempoGestacion_ani integer NOT NULL DEFAULT 0,
+  peso_ani integer NOT NULL DEFAULT 0,
+  arete_ani varchar(50) NOT NULL,
+  fechaNacimiento_ani date,
+  fechaVacunacion_ani date,
+  status_ani varchar(50),
+  precio_ani decimal DEFAULT 0,
+  existencia integer NOT NULL DEFAULT 0,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT FK_AnimalGrupo FOREIGN KEY (id_gru) REFERENCES grupo(id_gru),
+  CONSTRAINT FK_AnimalFamilia FOREIGN KEY (codigo_fam) REFERENCES familia(codigo_fam)
+);
+
+INSERT INTO grupo(name_gru) VALUES('BUFALINOS')
+INSERT INTO grupo(name_gru) VALUES('BOBINOS')
+INSERT INTO grupo(name_gru) VALUES('EQUINOS')
+
+INSERT INTO familia (id_gru, codigo_fam, name_fam) VALUES
+(1, 'A1', 'BUFALOS'),
+(1, 'A2', 'BUBILLOS'),
+(1, 'A3', 'BUBAUTES'),
+(1, 'A4', 'BUCERROS'),
+(1, 'A5', 'BUFALAS'),
+(1, 'A6', 'BUBILLAS'),
+(1, 'A7', 'BUBAUTAS'),
+(1, 'A9', 'BUFALAS REPRODUCTORAS'),
+(2, 'B1', 'TOROS'),
+(2, 'B2', 'MAUTES'),
+(2, 'B3', 'BECERROS'),
+(2, 'B4', 'VACAS'),
+(2, 'B5', 'NOVILLAS'),
+(2, 'B6', 'MAUTAS'),
+(2, 'B7', 'BECERRAS'),
+(2, 'B8', 'TOROS REPRODUCTORES'),
+(3, 'C1', 'CABALLOS'),
+(3, 'C2', 'POTROS'),
+(3, 'C3', 'YEGUAS'),
+(3, 'C4', 'POTRAS'),
+(3, 'C5', 'MULAS');
+
+CREATE TABLE configuracion (
+    id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    numero_fac integer NOT NULL,
+    ultima_vacunacion date NOT NULL,
+    codigo_cli integer NOT NULL
+);
+
+INSERT INTO configuracion(numero_fac, ultima_vacunacion, codigo_cli) VALUES(1, '2025-04-29', 1);
+
+CREATE TABLE produccionleche (
+  id_lec integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  codigo_ani varchar(15) NOT NULL,
+  litros_lec decimal(10,2) NOT NULL DEFAULT 0,
+  fecha_lec date NOT NULL,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  
+  CONSTRAINT fk_produccion_animal 
+    FOREIGN KEY (codigo_ani) 
+    REFERENCES animal(codigo_ani)
+);
+
+CREATE TABLE clientes (
+  codigo_cli integer PRIMARY KEY,
+  nombre_cli varchar(200) NOT NULL,
+  telefono_cli varchar(50) NOT NULL,
+  direccion_cli varchar(250) NOT NULL,
+  rif_cli varchar(50) NOT NULL,
+  email_cli varchar(100) NOT NULL,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE factura (
+  numero_fac integer PRIMARY KEY,
+  codigo_cli integer NOT NULL,
+  fecha_fac date NOT NULL,
+  total_fac decimal(10,2) NOT NULL,
+  observaciones_fac varchar(200) NOT NULL,
+  CONSTRAINT fk_factura_clientes FOREIGN KEY (codigo_cli) REFERENCES clientes(codigo_cli)
+);
+
+
+CREATE TABLE detalle_factura (
+  id_detalle integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  numero_fac integer NOT NULL,
+  codigo_ani varchar(15) NOT NULL,
+  cantidad_fac integer NOT NULL DEFAULT 1,
+  precio_fac decimal(10,2) NOT NULL,
+  total_fac decimal(10,2) NOT NULL,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  
+  CONSTRAINT fk_detalle_factura 
+    FOREIGN KEY (numero_fac) REFERENCES factura(numero_fac),
+  CONSTRAINT fk_animal_detalle 
+    FOREIGN KEY (codigo_ani) REFERENCES animal(codigo_ani)
+);
