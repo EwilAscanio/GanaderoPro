@@ -1,28 +1,142 @@
 "use client";
 
-import { Construction } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { FileText, List, ArrowRight } from "lucide-react";
 
 export default function ReportesPage() {
-  return <UnderConstruction title="Reportes" />;
-}
+  const router = useRouter();
+  const [grupos, setGrupos] = useState([]);
+  const [familias, setFamilias] = useState([]);
+  const [grupo, setGrupo] = useState("");
+  const [familia, setFamilia] = useState("");
+  const [loadingFam, setLoadingFam] = useState(false);
 
-function UnderConstruction({ title }) {
+  useEffect(() => {
+    axios.get("/api/grupo").then((r) => setGrupos(r.data)).catch(console.error);
+  }, []);
+
+  const loadFamilias = async (grupoId) => {
+    setLoadingFam(true);
+    try {
+      const params = grupoId ? { grupo: grupoId } : {};
+      const res = await axios.get("/api/reportes/familias", { params });
+      setFamilias(res.data);
+    } catch {
+      console.error("Error al cargar familias");
+    } finally {
+      setLoadingFam(false);
+    }
+  };
+
+  const handleGrupoChange = (e) => {
+    const id = e.target.value;
+    setGrupo(id);
+    setFamilia("");
+    if (id) loadFamilias(id);
+    else setFamilias([]);
+  };
+
+  const handleGenerate = () => {
+    if (!grupo) return;
+    const params = new URLSearchParams({ grupo });
+    if (familia) params.set("familia", familia);
+    router.push(`/dashboard/reportes/animales?${params.toString()}`);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center animate-fade-in-up">
-      <div
-        className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 animate-float"
-        style={{ background: "var(--accent-bg)" }}
-      >
-        <Construction size={40} style={{ color: "var(--accent)" }} />
+    <div className="space-y-6">
+      <div className="animate-fade-in-up">
+        <h1 className="text-2xl lg:text-3xl font-bold gradient-text">Reportes</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+          Selecciona un reporte para generar
+        </p>
       </div>
-      <h1 className="text-3xl font-bold gradient-text mb-3">{title}</h1>
-      <p className="text-lg mb-2" style={{ color: "var(--text-secondary)" }}>
-        Página en construcción
-      </p>
-      <p className="text-sm max-w-md" style={{ color: "var(--text-muted)" }}>
-        Esta sección pronto será desarrollada. Estamos trabajando para brindarte
-        la mejor experiencia de gestión ganadera.
-      </p>
+
+      <div className="max-w-xl">
+        <div
+          className="rounded-xl p-6 transition-all duration-200 animate-fade-in-up"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+        >
+          <div className="flex items-start gap-4 mb-5">
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "var(--accent-bg)" }}
+            >
+              <List size={24} style={{ color: "var(--accent)" }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base" style={{ color: "var(--text-primary)" }}>
+                Familias por Grupo
+              </h3>
+              <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+                Reporte de animales agrupados por familia
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                Grupo <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <select
+                value={grupo}
+                onChange={handleGrupoChange}
+                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                style={{
+                  background: "var(--bg-secondary)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <option value="">Selecciona un grupo</option>
+                {grupos.map((g) => (
+                  <option key={g.id_gru} value={g.id_gru}>
+                    {g.name_gru}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                Familia
+              </label>
+              <select
+                value={familia}
+                onChange={(e) => setFamilia(e.target.value)}
+                disabled={!grupo || loadingFam}
+                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors disabled:opacity-50"
+                style={{
+                  background: "var(--bg-secondary)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <option value="">Todas las familias</option>
+                {familias.map((f) => (
+                  <option key={f.codigo_fam} value={f.codigo_fam}>
+                    {f.name_fam} ({f.total})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={handleGenerate}
+              disabled={!grupo}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white btn-hover transition-all disabled:opacity-50"
+              style={{ background: "var(--accent)" }}
+            >
+              <FileText size={16} />
+              Generar Reporte
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
