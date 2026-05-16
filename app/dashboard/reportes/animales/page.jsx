@@ -86,10 +86,10 @@ function ReportDocument({ animales, grupoName, familiaName, grupo, familia }) {
                   <Text style={pdfStyles.cellNombre}>{a.nombre_ani}</Text>
                   <Text style={pdfStyles.cellArete}>{a.arete_ani}</Text>
                   <Text style={pdfStyles.cellSexo}>{a.sexo_ani || ""}</Text>
-                  <Text style={pdfStyles.cellNacimiento}>{formatDate(a.fechaNacimiento_ani)}</Text>
+                  <Text style={pdfStyles.cellNacimiento}>{formatDate(a.fechanacimiento_ani)}</Text>
                   <Text style={pdfStyles.cellPeso}>{a.peso_ani != null ? String(a.peso_ani) : ""}</Text>
-                  <Text style={pdfStyles.cellPalpacion}>{formatDate(a.fechaPalpacion_ani)}</Text>
-                  <Text style={pdfStyles.cellVacunacion}>{formatDate(a.fechaVacunacion_ani)}</Text>
+                  <Text style={pdfStyles.cellPalpacion}>{formatDate(a.fechapalpacion_ani)}</Text>
+                  <Text style={pdfStyles.cellVacunacion}>{formatDate(a.fechavacunacion_ani)}</Text>
                 </View>
               ))}
             </View>
@@ -262,16 +262,16 @@ function ReporteAnimalesContent() {
                         {a.sexo_ani}
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell" style={{ color: "var(--text-secondary)" }}>
-                        {formatDate(a.fechaNacimiento_ani)}
+                        {formatDate(a.fechanacimiento_ani)}
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell" style={{ color: "var(--text-secondary)" }}>
                         {a.peso_ani} kg
                       </td>
                       <td className="px-4 py-3 hidden lg:table-cell" style={{ color: "var(--text-secondary)" }}>
-                        {formatDate(a.fechaPalpacion_ani)}
+                        {formatDate(a.fechapalpacion_ani)}
                       </td>
                       <td className="px-4 py-3 hidden lg:table-cell" style={{ color: "var(--text-secondary)" }}>
-                        {formatDate(a.fechaVacunacion_ani)}
+                        {formatDate(a.fechavacunacion_ani)}
                       </td>
                     </tr>
                   ))}
