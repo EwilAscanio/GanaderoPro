@@ -155,3 +155,16 @@ CREATE TABLE nacimiento (
   CONSTRAINT fk_nacimiento_animal 
     FOREIGN KEY (codigo_ani) REFERENCES animal(codigo_ani)
 );
+
+CREATE TABLE palpacion (
+  id_pal integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  codigo_ani varchar(50) NOT NULL,
+  fecha_pal date NOT NULL,
+  animalembarazado_pal boolean DEFAULT FALSE,
+  tiempogestacion_pal integer DEFAULT 0,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE palpacion
+ADD CONSTRAINT fk_palpacion_animal
+FOREIGN KEY (codigo_ani) REFERENCES animal(codigo_ani);

@@ -66,6 +66,13 @@ export default function PalpacionPage() {
         status_ani: "Activo",
       });
 
+      await axios.post("/api/palpacion", {
+        codigo_ani: animal.codigo_ani,
+        fecha_pal: fechaPalpacion,
+        animalembarazado_pal: preñado,
+        tiempogestacion_pal: preñado ? Number(tiempoGestion) : 0,
+      });
+
       notif.show({
         type: "success",
         title: "Palpación Registrada",
