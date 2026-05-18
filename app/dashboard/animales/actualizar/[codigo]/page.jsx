@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Search, X, Check } from "lucide-react";
 import NotificationModal from "@/components/NotificationModal";
 import { useNotification } from "@/hooks/useNotification";
 
@@ -23,6 +23,11 @@ export default function ActualizarAnimalPage() {
   const [selectedGrupo, setSelectedGrupo] = useState("");
   const [notFound, setNotFound] = useState(false);
   const [formData, setFormData] = useState(null);
+  const [madreSearch, setMadreSearch] = useState("");
+  const [madreResults, setMadreResults] = useState([]);
+  const [showMadreSearch, setShowMadreSearch] = useState(false);
+  const [madreSearchLoading, setMadreSearchLoading] = useState(false);
+  const [madreNombre, setMadreNombre] = useState("");
   const notif = useNotification();
 
   const isAdmin = session?.user?.role === "Administrador";
@@ -48,6 +53,7 @@ export default function ActualizarAnimalPage() {
       fechavacunacion_ani: "",
       status_ani: "",
       precio_ani: 0,
+      codigomadre_ani: "",
     },
   });
 
@@ -86,7 +92,9 @@ export default function ActualizarAnimalPage() {
           fechavacunacion_ani: fmt(a.fechavacunacion_ani),
           status_ani: a.status_ani || "",
           precio_ani: a.precio_ani,
+          codigomadre_ani: a.codigomadre_ani || "",
         });
+        if (a.codigomadre_ani) setMadreNombre(a.madre_nombre || "");
       } catch (err) {
         if (!mounted) return;
         if (err.response?.status === 404) setNotFound(true);
@@ -118,6 +126,7 @@ export default function ActualizarAnimalPage() {
         tiempogestacion_ani: esMacho ? 0 : Number(data.tiempogestacion_ani),
         fechanacimiento_ani: data.fechanacimiento_ani || null,
         fechavacunacion_ani: data.fechavacunacion_ani || null,
+        codigomadre_ani: data.codigomadre_ani?.trim() || null,
       });
       notif.show({
         type: "success",
@@ -183,6 +192,60 @@ export default function ActualizarAnimalPage() {
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+              Madre {madreNombre && <span className="text-xs" style={{ color: "var(--text-muted)" }}>({madreNombre})</span>}
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                {...register("codigomadre_ani")}
+                placeholder="Código de la madre"
+                className="flex-1 px-4 py-2.5 rounded-lg text-sm outline-none input-focus"
+                style={{
+                  background: "var(--bg-secondary)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-primary)",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setMadreSearch("");
+                  setMadreResults([]);
+                  setShowMadreSearch(true);
+                  setMadreSearchLoading(true);
+                  axios.get("/api/animal")
+                    .then((res) => {
+                      const hembras = res.data.filter((a) => a.sexo_ani === "Hembra");
+                      setMadreResults(hembras);
+                      setMadreSearchLoading(false);
+                    })
+                    .catch(() => setMadreSearchLoading(false));
+                }}
+                className="px-3 py-2.5 rounded-lg text-sm font-medium btn-hover"
+                style={{ background: "var(--bg-secondary)", color: "var(--accent)", border: "1px solid var(--border)" }}
+                title="Buscar madre"
+              >
+                <Search size={18} />
+              </button>
+              {watch("codigomadre_ani") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue("codigomadre_ani", "");
+                    setMadreNombre("");
+                  }}
+                  className="px-3 py-2.5 rounded-lg text-sm font-medium btn-hover"
+                  style={{ background: "var(--bg-secondary)", color: "#ef4444", border: "1px solid var(--border)" }}
+                  title="Quitar madre"
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Código</label>
@@ -432,6 +495,109 @@ export default function ActualizarAnimalPage() {
           </div>
 
           {error && <p className="text-sm animate-fade-in" style={{ color: "#ef4444" }}>{error}</p>}
+
+          {showMadreSearch && (
+            <div
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in"
+              style={{ background: "rgba(0,0,0,0.5)" }}
+              onClick={() => setShowMadreSearch(false)}
+            >
+              <div
+                className="w-full max-w-lg rounded-xl p-5 space-y-4 animate-fade-in-up max-h-[80vh] flex flex-col"
+                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold" style={{ color: "var(--text-primary)" }}>Seleccionar Madre</p>
+                  <button
+                    onClick={() => setShowMadreSearch(false)}
+                    className="p-1.5 rounded-lg btn-hover"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                  style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
+                >
+                  <Search size={16} style={{ color: "var(--text-muted)" }} />
+                  <input
+                    type="text"
+                    value={madreSearch}
+                    onChange={(e) => setMadreSearch(e.target.value)}
+                    placeholder="Filtrar hembras..."
+                    className="w-full bg-transparent text-sm outline-none"
+                    style={{ color: "var(--text-primary)" }}
+                  />
+                </div>
+
+                <div className="overflow-y-auto flex-1 -mx-5 px-5 space-y-1">
+                  {madreSearchLoading ? (
+                    <div className="flex justify-center py-10">
+                      <div
+                        className="w-6 h-6 rounded-full animate-spin"
+                        style={{ border: "2px solid var(--border)", borderTopColor: "var(--accent)" }}
+                      />
+                    </div>
+                  ) : (
+                    madreResults
+                      .filter(
+                        (m) =>
+                          !madreSearch ||
+                          m.codigo_ani.toLowerCase().includes(madreSearch.toLowerCase()) ||
+                          m.nombre_ani.toLowerCase().includes(madreSearch.toLowerCase())
+                      )
+                      .map((m) => (
+                        <button
+                          key={m.codigo_ani}
+                          type="button"
+                          onClick={() => {
+                            setValue("codigomadre_ani", m.codigo_ani);
+                            setMadreNombre(m.nombre_ani);
+                            setShowMadreSearch(false);
+                          }}
+                          className="w-full flex items-center gap-3 p-3 rounded-lg text-left btn-hover"
+                          style={{ background: "var(--bg-secondary)" }}
+                        >
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                            style={{ background: "var(--accent)" }}
+                          >
+                            {m.nombre_ani?.charAt(0)?.toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm" style={{ color: "var(--text-primary)" }}>
+                              {m.nombre_ani}
+                            </p>
+                            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                              {m.codigo_ani} — {m.name_gru}
+                            </p>
+                          </div>
+                          {watch("codigomadre_ani") === m.codigo_ani && (
+                            <Check size={18} style={{ color: "var(--accent)" }} />
+                          )}
+                        </button>
+                      ))
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowMadreSearch(false)}
+                  className="w-full py-2.5 rounded-lg text-sm font-medium btn-hover"
+                  style={{
+                    background: "var(--bg-secondary)",
+                    color: "var(--text-secondary)",
+                    border: "1px solid var(--border)",
+                  }}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-3 pt-4">
             <button

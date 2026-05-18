@@ -58,7 +58,7 @@ export default function Sidebar({ open, onClose }) {
           <Tractor size={20} className="text-white" />
         </div>
         <span className="font-semibold text-lg gradient-text">
-          Ganadero
+          GanaderoPro
         </span>
         <button
           onClick={onClose}

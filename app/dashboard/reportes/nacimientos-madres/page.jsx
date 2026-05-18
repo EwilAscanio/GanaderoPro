@@ -1,3 +1,6 @@
+// ==============================
+// Reporte Madres y Crias
+// ==============================
 "use client";
 
 import { useState, useEffect, Suspense, useMemo } from "react";
@@ -45,7 +48,7 @@ function ReportDocument({ grupoMadres }) {
     <Document>
       <Page size="A4" orientation="landscape" style={pdfStyles.page}>
         <View style={pdfStyles.header} wrap={false}>
-          <Text style={pdfStyles.headerLeft}>LOS CHORRERONES</Text>
+          <Text style={pdfStyles.headerLeft}>{process.env.NEXT_PUBLIC_EMPRESA_NOMBRE || "LOS CHORRERONES"}</Text>
           <Text style={pdfStyles.headerRight}>{`Fecha de generación: ${today}`}</Text>
         </View>
 
@@ -88,7 +91,7 @@ function ReportDocument({ grupoMadres }) {
         <Text style={pdfStyles.totalRow}>{`Total madres: ${totalMadres} | Total crías: ${totalHijos}`}</Text>
 
         <Text style={pdfStyles.footer} fixed>
-          <Text>LOS CHORRERONES</Text>
+          <Text>{process.env.NEXT_PUBLIC_EMPRESA_NOMBRE || "LOS CHORRERONES"}</Text>
           <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </Text>
       </Page>

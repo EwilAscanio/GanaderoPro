@@ -15,10 +15,12 @@ export async function GET() {
               a.codigo_fam, f.name_fam, a.sexo_ani, a.fechaPalpacion_ani,
               a.tiempoGestacion_ani, a.peso_ani, a.arete_ani,
               a.fechaNacimiento_ani, a.fechaVacunacion_ani, a.status_ani,
-               a.precio_ani, a.existencia, a.codigomadre_ani, a.created_at
+               a.precio_ani, a.existencia, a.codigomadre_ani, a.created_at,
+               m.nombre_ani AS madre_nombre
         FROM animal a
        JOIN grupo g ON a.id_gru = g.id_gru
        JOIN familia f ON a.codigo_fam = f.codigo_fam
+  LEFT JOIN animal m ON a.codigomadre_ani = m.codigo_ani
        ORDER BY a.codigo_ani`
     );
 

@@ -6,6 +6,9 @@ import axios from "axios";
 import { FileText, List, ArrowRight, Milk, Receipt, Users, Baby, Heart, Activity } from "lucide-react";
 
 const reportes = [
+  // ==============================
+  // Reporte Familias por Grupo
+  // ==============================
   {
     id: "familias",
     icon: List,
@@ -16,6 +19,9 @@ const reportes = [
     necesitaFechas: false,
     ruta: "animales",
   },
+  // ==============================
+  // Reporte Produccion de Leche
+  // ==============================
   {
     id: "produccion-leche",
     icon: Milk,
@@ -26,6 +32,9 @@ const reportes = [
     necesitaFechas: true,
     ruta: "produccion-leche",
   },
+  // ==============================
+  // Reporte Facturas
+  // ==============================
   {
     id: "facturas",
     icon: Receipt,
@@ -36,16 +45,10 @@ const reportes = [
     necesitaFechas: true,
     ruta: "facturas",
   },
-  {
-    id: "clientes",
-    icon: Users,
-    titulo: "Clientes",
-    descripcion: "Reporte de clientes registrados",
-    necesitaGrupo: false,
-    necesitaFamilia: false,
-    necesitaFechas: false,
-    ruta: "clientes",
-  },
+  
+  // ==============================
+  // Reporte Nacimientos
+  // ==============================
   {
     id: "nacimientos",
     icon: Baby,
@@ -56,6 +59,23 @@ const reportes = [
     necesitaFechas: true,
     ruta: "nacimientos",
   },
+  
+  // ==============================
+  // Reporte Palpaciones
+  // ==============================
+  {
+    id: "palpaciones",
+    icon: Activity,
+    titulo: "Palpaciones",
+    descripcion: "Reporte histórico de palpaciones por período",
+    necesitaGrupo: false,
+    necesitaFamilia: false,
+    necesitaFechas: true,
+    ruta: "palpaciones",
+  },
+  // ==============================
+  // Reporte Madres y Crias
+  // ==============================
   {
     id: "nacimientos-madres",
     icon: Heart,
@@ -67,15 +87,18 @@ const reportes = [
     necesitaCodigoMadre: true,
     ruta: "nacimientos-madres",
   },
+  // ==============================
+  // Reporte Clientes
+  // ==============================
   {
-    id: "palpaciones",
-    icon: Activity,
-    titulo: "Palpaciones",
-    descripcion: "Reporte histórico de palpaciones por período",
+    id: "clientes",
+    icon: Users,
+    titulo: "Clientes",
+    descripcion: "Reporte de clientes registrados",
     necesitaGrupo: false,
     necesitaFamilia: false,
-    necesitaFechas: true,
-    ruta: "palpaciones",
+    necesitaFechas: false,
+    ruta: "clientes",
   },
 ];
 

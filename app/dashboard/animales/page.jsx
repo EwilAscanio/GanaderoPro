@@ -38,8 +38,6 @@ export default function AnimalesPage() {
       try {
         const res = await axios.get("/api/animal");
 
-        console.log("Animales cargados:", res.data);
-        
         if (mounted) setAnimales(res.data);
       } catch {
         console.error("Error al cargar datos");
@@ -116,6 +114,7 @@ export default function AnimalesPage() {
                 <th className="text-left px-4 py-3 font-medium hidden md:table-cell" style={{ color: "var(--text-muted)" }}>Grupo</th>
                 <th className="text-left px-4 py-3 font-medium hidden md:table-cell" style={{ color: "var(--text-muted)" }}>Familia</th>
                 <th className="text-left px-4 py-3 font-medium hidden sm:table-cell" style={{ color: "var(--text-muted)" }}>Sexo</th>
+                <th className="text-left px-4 py-3 font-medium hidden lg:table-cell" style={{ color: "var(--text-muted)" }}>Madre</th>
                 <th className="text-left px-4 py-3 font-medium hidden lg:table-cell" style={{ color: "var(--text-muted)" }}>Peso</th>
                 <th className="text-left px-4 py-3 font-medium hidden xl:table-cell" style={{ color: "var(--text-muted)" }}>Fecha Palpación</th>
                 <th className="text-left px-4 py-3 font-medium hidden xl:table-cell" style={{ color: "var(--text-muted)" }}>Fecha Vacunación</th>
@@ -171,6 +170,18 @@ export default function AnimalesPage() {
                     >
                       {a.sexo_ani}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 hidden lg:table-cell" style={{ color: "var(--text-secondary)" }}>
+                    {a.codigomadre_ani ? (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="font-mono text-xs" style={{ color: "var(--accent)" }}>{a.codigomadre_ani}</span>
+                        {a.madre_nombre && (
+                          <span className="text-xs" style={{ color: "var(--text-muted)" }}>({a.madre_nombre})</span>
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell" style={{ color: "var(--text-secondary)" }}>
                     {a.peso_ani} kg
