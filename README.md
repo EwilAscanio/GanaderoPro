@@ -1,54 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Sistema Ganadero - Dashboard
 
-## Getting Started
+**Creador:** [Ewilascanio](https://www.ewilascanio.com)  
+**Portafolio:** [www.ewilascanio.com](https://www.ewilascanio.com)
 
-First, run the development server:
+Sistema de gestión ganadera desarrollado con **Next.js 16**, **PostgreSQL** y **NextAuth.js**. Permite administrar animales, registros de producción, facturación, nacimientos, palpaciones y más.
+
+## Tecnologías
+
+- **Next.js 16** (App Router)
+- **PostgreSQL** (con `pg`)
+- **NextAuth.js** (autenticación)
+- **React Hook Form** (formularios)
+- **Axios** (cliente HTTP)
+- **Recharts** (gráficos)
+- **@react-pdf/renderer** (generación de PDF)
+- **Lucide React** (iconos)
+
+## Requisitos
+
+- Node.js 18+
+- PostgreSQL
+
+## Instalación
+
+```bash
+npm install
+```
+
+## Configuración
+
+Crear archivo `.env` en la raíz del proyecto:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=db_ganadero
+DB_USER=postgres
+DB_PASSWORD=tu_password
+
+NEXTAUTH_SECRET=mi-secreto-seguro
+NEXTAUTH_URL=http://localhost:3000
+
+NEXT_PUBLIC_EMPRESA_NOMBRE=MI EMPRESA
+```
+
+## Ejecutar
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Módulos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Ruta | Descripción |
+|------|-------------|
+| `/dashboard` | Dashboard con estadísticas y gráficos |
+| `/dashboard/animales` | CRUD de animales |
+| `/dashboard/animales/registrar` | Registro de nuevo animal |
+| `/dashboard/animales/actualizar/[codigo]` | Actualizar animal |
+| `/dashboard/clientes` | CRUD de clientes |
+| `/dashboard/familia` | Gestión de familias |
+| `/dashboard/grupo` | Gestión de grupos |
+| `/dashboard/nacimiento` | Registro de nacimientos |
+| `/dashboard/palpacion` | Registro de palpaciones |
+| `/dashboard/produccion-leche` | Registro de producción de leche |
+| `/dashboard/peso` | Registro de peso |
+| `/dashboard/vacunacion` | Registro de vacunación |
+| `/dashboard/ventas` | Gestión de ventas/facturación |
+| `/dashboard/configuracion` | Configuración del sistema |
+| `/dashboard/usuarios` | Gestión de usuarios |
+| `/dashboard/reportes` | Centro de reportes (ver sección Reportes) |
 
-## Learn More
+## Reportes
 
-To learn more about Next.js, take a look at the following resources:
+El sistema incluye **7 reportes** con generación de PDF descargable:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Reporte | Descripción | Filtros |
+|---------|-------------|---------|
+| **Familias por Grupo** | Animales agrupados por familia | Grupo, Familia |
+| **Producción de Leche** | Litros de leche registrados | Rango de fechas |
+| **Facturas** | Facturas emitidas con totales | Rango de fechas |
+| **Clientes** | Listado completo de clientes | Ninguno |
+| **Nacimientos** | Registro de partos | Rango de fechas |
+| **Madres y Crías** | Madres con sus crías (vínculo por codigomadre_ani) | Código de madre |
+| **Palpaciones** | Histórico de palpaciones realizadas | Rango de fechas |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Roles
 
-## Deploy on Vercel
+- **Administrador**: acceso completo a todas las funciones
+- **Usuario**: acceso limitado a consulta
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## API Endpoints
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET/POST | `/api/animal` | Listar / crear animal |
+| GET/PUT/DELETE | `/api/animal/[codigo]` | Obtener / actualizar / eliminar animal |
+| GET | `/api/animal/[codigo]/crias` | Obtener crías de una madre |
+| GET/POST | `/api/clientes` | Listar / crear cliente |
+| GET/PUT/DELETE | `/api/clientes/[codigo]` | Obtener / actualizar / eliminar cliente |
+| GET/POST | `/api/familia` | Listar / crear familia |
+| GET/POST | `/api/grupo` | Listar / crear grupo |
+| GET/POST | `/api/nacimiento` | Listar / crear nacimiento |
+| POST | `/api/palpacion` | Registrar palpación |
+| GET/POST | `/api/produccion-leche` | Listar / crear producción de leche |
+| POST | `/api/factura` | Crear factura |
+| GET | `/api/dashboard/stats` | Estadísticas del dashboard |
+| GET | `/api/reportes/*` | Endpoints para reportes |
 
+## Base de Datos
 
-DB_HOST=ep-cold-sky-aq8wbo1c-pooler.c-8.us-east-1.aws.neon.tech
-DB_PORT=5432
-DB_NAME=neondb
-DB_USER=neondb_owner
-DB_PASSWORD=npg_dB3TY2RjFDHW
+### Tablas principales
 
-NEXTAUTH_SECRET=mi-secreto-super-seguro-cambiame
-NEXTAUTH_URL=http://localhost:3000
-
-// const pool = new Pool({
-//   host: process.env.DB_HOST || "localhost",
-//   port: parseInt(process.env.DB_PORT) || 5432,
-//   database: process.env.DB_NAME || "db_ganadero",
-//   user: process.env.DB_USER || "postgres",
-//   password: process.env.DB_PASSWORD || "",
-// });
+- **animal** - Animales del sistema
+- **clientes** - Clientes
+- **factura / detalle_factura** - Facturación
+- **familia / grupo** - Clasificación de animales
+- **nacimiento** - Registro de partos
+- **palpacion** - Histórico de palpaciones
+- **produccionleche** - Producción lechera
+- **vacunacion** - Registro de vacunas
+- **configuracion** - Configuración del sistema
+- **users / roles** - Usuarios y roles
