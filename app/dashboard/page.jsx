@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Users, Mars, Venus, Calendar, Droplets } from "lucide-react";
+import { Users, Mars, Venus, Calendar, Droplets, Layers } from "lucide-react";
 import axios from "axios";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, BarChart, Bar,
 } from "recharts";
 
 const defaultStats = [
@@ -14,23 +14,12 @@ const defaultStats = [
   { icon: Calendar, label: "Última Vacunación", value: "Cargando..." },
 ];
 
-const recentActivities = [
-  { action: "Nuevo ternero registrado", time: "Hace 10 min" },
-  { action: "Vacunación del lote #4 completada", time: "Hace 45 min" },
-  { action: "Venta de 3 bovinos", time: "Hace 2 h" },
-  { action: "Mantenimiento de tractor", time: "Hace 4 h" },
-  { action: "Control de plagas en cultivo sur", time: "Hace 6 h" },
-];
-
-const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-const barHeights = [52, 78, 62, 95, 110, 85, 68];
+const COLORS = ["#2563eb", "#7c3aed", "#db2777", "#ea580c", "#ca8a04", "#16a34a", "#0891b2", "#4f46e5", "#be185d", "#65a30d"];
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(defaultStats);
-  const [barsVisible, setBarsVisible] = useState(false);
-  const [hoveredBar, setHoveredBar] = useState(null);
+  const [familias, setFamilias] = useState([]);
   const [hoveredStat, setHoveredStat] = useState(null);
-  const chartRef = useRef(null);
 
   useEffect(() => {
     axios.get("/api/dashboard/stats").then((res) => {
@@ -60,6 +49,10 @@ export default function DashboardPage() {
         );
       }
     }).catch(() => {});
+
+    axios.get("/api/reportes/familias").then((res) => {
+      setFamilias(res.data);
+    }).catch(() => {});
   }, []);
 
   const [prodData, setProdData] = useState([]);
@@ -83,17 +76,6 @@ export default function DashboardPage() {
     const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     return { month: months[i], litros: Math.round(total * 100) / 100 };
   });
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setBarsVisible(true);
-      },
-      { threshold: 0.3 }
-    );
-    if (chartRef.current) observer.observe(chartRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <div className="space-y-6">
@@ -160,105 +142,64 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Charts + Activity row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Bar chart */}
-        <div
-          ref={chartRef}
-          className="lg:col-span-2 rounded-xl p-5 card-hover"
-          style={{
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <h2 className="font-semibold mb-6" style={{ color: "var(--text-primary)" }}>
-            Producción Semanal
-          </h2>
-          <div className="flex items-end justify-between gap-2 h-44 pt-2">
-            {days.map((day, i) => {
-              const h = barHeights[i];
-              return (
-                <div
-                  key={day}
-                  className="flex-1 flex flex-col items-center gap-1.5 group relative"
-                >
-                  {hoveredBar === i && (
-                    <div
-                      className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap z-10 animate-scale-in"
-                      style={{ background: "var(--accent)", color: "#fff" }}
-                    >
-                      {h} L
-                    </div>
-                  )}
-                  <div
-                    className="w-full rounded-md transition-all duration-300 cursor-pointer"
-                    style={{
-                      height: `${h}px`,
-                      background:
-                        hoveredBar === i
-                          ? "var(--accent-light)"
-                          : "var(--accent)",
-                      opacity: barsVisible ? 0.65 + i * 0.05 : 0,
-                      transform: barsVisible ? "scaleY(1)" : "scaleY(0)",
-                      transformOrigin: "bottom",
-                      transition: `opacity 0.5s ease ${0.1 + i * 0.08}s, transform 0.5s ease ${0.1 + i * 0.08}s, background 0.25s ease`,
-                      boxShadow:
-                        hoveredBar === i
-                          ? `0 4px 12px color-mix(in srgb, var(--accent) 40%, transparent)`
-                          : "none",
-                    }}
-                    onMouseEnter={() => setHoveredBar(i)}
-                    onMouseLeave={() => setHoveredBar(null)}
-                  />
-                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                    {day}
-                  </span>
-                </div>
-              );
-            })}
+      {/* Animales por Familia */}
+      <div
+        className="rounded-xl p-5 card-hover"
+        style={{
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: "var(--accent-bg)" }}
+          >
+            <Layers size={20} style={{ color: "var(--accent)" }} />
           </div>
-        </div>
-
-        {/* Recent activity */}
-        <div
-          className="rounded-xl p-5 card-hover"
-          style={{
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <h2 className="font-semibold mb-5" style={{ color: "var(--text-primary)" }}>
-            Actividad Reciente
+          <h2 className="font-semibold" style={{ color: "var(--text-primary)" }}>
+            Animales por Familia
           </h2>
-          <div className="space-y-1">
-            {recentActivities.map((act, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 p-2 rounded-lg transition-all duration-200 cursor-default group"
-                style={{
-                  animation: `fadeInUp 0.4s ease ${0.3 + i * 0.08}s forwards`,
-                  opacity: 0,
+        </div>
+        {familias.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={familias} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis
+                dataKey="name_fam"
+                tick={{ fill: "var(--text-muted)", fontSize: 11 }}
+                axisLine={{ stroke: "var(--border)" }}
+                interval={0}
+                angle={-20}
+                textAnchor="end"
+                height={60}
+              />
+              <YAxis
+                tick={{ fill: "var(--text-muted)", fontSize: 12 }}
+                axisLine={{ stroke: "var(--border)" }}
+                allowDecimals={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "8px",
+                  color: "var(--text-primary)",
                 }}
-              >
-                <div
-                  className="w-2 h-2 rounded-full mt-1.5 shrink-0 transition-all duration-200 group-hover:scale-150"
-                  style={{ background: "var(--accent)" }}
-                />
-                <div className="flex-1 min-w-0">
-                  <p
-                    className="text-sm truncate transition-colors duration-200 group-hover:translate-x-0.5"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {act.action}
-                  </p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                    {act.time}
-                  </p>
-                </div>
-              </div>
-            ))}
+                formatter={(value, name) => [value, "Animales"]}
+                labelFormatter={(label) => `Familia: ${label}`}
+              />
+              <Bar dataKey="total" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex justify-center py-10">
+            <div
+              className="w-6 h-6 rounded-full animate-spin"
+              style={{ border: "2px solid var(--border)", borderTopColor: "var(--accent)" }}
+            />
           </div>
-        </div>
+        )}
       </div>
 
       {/* Production chart */}
