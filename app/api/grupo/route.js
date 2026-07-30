@@ -28,15 +28,15 @@ export async function POST(request) {
       return NextResponse.json({ error: "No autorizado" }, { status: 403 });
     }
 
-    const { name_gru } = await request.json();
+    const { name_gru, ver_todas_familias } = await request.json();
 
     if (!name_gru || !name_gru.trim()) {
       return NextResponse.json({ error: "El nombre del grupo es obligatorio" }, { status: 400 });
     }
 
     const result = await query(
-      "INSERT INTO grupo (name_gru) VALUES ($1) RETURNING id_gru",
-      [name_gru.trim().toUpperCase()]
+      "INSERT INTO grupo (name_gru, ver_todas_familias) VALUES ($1, $2) RETURNING id_gru",
+      [name_gru.trim().toUpperCase(), !!ver_todas_familias]
     );
 
     return NextResponse.json({ success: true, id: result.rows[0].id_gru });

@@ -202,7 +202,9 @@ function GrupoFormModal({ grupo, onClose, onSaved }) {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: isEdit ? { name_gru: grupo.name_gru } : { name_gru: "" },
+    defaultValues: isEdit
+      ? { name_gru: grupo.name_gru, ver_todas_familias: grupo.ver_todas_familias ?? false }
+      : { name_gru: "", ver_todas_familias: false },
   });
 
   const onSubmit = async (data) => {

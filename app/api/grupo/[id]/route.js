@@ -35,15 +35,15 @@ export async function PUT(request, { params }) {
     }
 
     const { id } = await params;
-    const { name_gru } = await request.json();
+    const { name_gru, ver_todas_familias } = await request.json();
 
     if (!name_gru || !name_gru.trim()) {
       return NextResponse.json({ error: "El nombre del grupo es obligatorio" }, { status: 400 });
     }
 
     const result = await query(
-      "UPDATE grupo SET name_gru = $1 WHERE id_gru = $2 RETURNING id_gru",
-      [name_gru.trim().toUpperCase(), id]
+      "UPDATE grupo SET name_gru = $1, ver_todas_familias = $2 WHERE id_gru = $3 RETURNING id_gru",
+      [name_gru.trim().toUpperCase(), !!ver_todas_familias, id]
     );
 
     if (result.rows.length === 0) {
