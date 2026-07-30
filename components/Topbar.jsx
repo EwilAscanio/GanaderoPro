@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Sun, Moon, LogOut, Bell, Search, Menu, User } from "lucide-react";
 import NotificationModal from "@/components/NotificationModal";
+import SearchModal from "@/components/SearchModal";
 import { useNotification } from "@/hooks/useNotification";
 
 export default function Topbar({ onMenuClick }) {
@@ -12,6 +14,7 @@ export default function Topbar({ onMenuClick }) {
   const { data: session } = useSession();
   const router = useRouter();
   const notif = useNotification();
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const handleLogout = () => {
     notif.show({
@@ -42,8 +45,9 @@ export default function Topbar({ onMenuClick }) {
         >
           <Menu size={22} />
         </button>
-        <div
-          className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 cursor-text"
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 btn-hover w-96" 
           style={{
             background: "var(--bg-secondary)",
             color: "var(--text-muted)",
@@ -51,7 +55,7 @@ export default function Topbar({ onMenuClick }) {
         >
           <Search size={16} />
           <span>Buscar...</span>
-        </div>
+        </button>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
@@ -108,6 +112,7 @@ export default function Topbar({ onMenuClick }) {
         </button>
       </div>
 
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       <NotificationModal {...notif.notification} />
     </header>
   );

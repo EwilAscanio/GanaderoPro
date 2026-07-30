@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { FileText, List, ArrowRight, Milk, Receipt, Users, Baby, Heart, Activity } from "lucide-react";
+import { FileText, List, ArrowRight, Milk, Receipt, Users, Baby, Heart, Activity, Table2, CookingPot, Droplets } from "lucide-react";
 
 const reportes = [
   // ==============================
@@ -31,6 +31,20 @@ const reportes = [
     necesitaFamilia: false,
     necesitaFechas: true,
     ruta: "produccion-leche",
+  },
+  // ==============================
+  // Reporte Resumen de Leche
+  // ==============================
+  {
+    id: "resumen-leche",
+    icon: Table2,
+    titulo: "Resumen de Leche",
+    descripcion: "Reporte resumido de producción por animal y día",
+    necesitaGrupo: false,
+    necesitaFamilia: false,
+    necesitaFechas: false,
+    necesitaCodigoAnimal: false,
+    ruta: "resumen-leche",
   },
   // ==============================
   // Reporte Facturas
@@ -88,6 +102,32 @@ const reportes = [
     ruta: "nacimientos-madres",
   },
   // ==============================
+  // Reporte de Quesos
+  // ==============================
+  {
+    id: "quesos",
+    icon: CookingPot,
+    titulo: "Quesos",
+    descripcion: "Reporte de producción de queso por período",
+    necesitaGrupo: false,
+    necesitaFamilia: false,
+    necesitaFechas: false,
+    ruta: "quesos",
+  },
+  // ==============================
+  // Reporte de Cuajada
+  // ==============================
+  {
+    id: "cuajada",
+    icon: Droplets,
+    titulo: "Cuajada",
+    descripcion: "Reporte de producción de cuajada por período",
+    necesitaGrupo: false,
+    necesitaFamilia: false,
+    necesitaFechas: false,
+    ruta: "cuajada",
+  },
+  // ==============================
   // Reporte Clientes
   // ==============================
   {
@@ -112,6 +152,14 @@ export default function ReportesPage() {
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
   const [codigoMadre, setCodigoMadre] = useState("");
+  const [codigoAnimal, setCodigoAnimal] = useState("");
+  const [fechaDesdeResumen, setFechaDesdeResumen] = useState("");
+  const [fechaHastaResumen, setFechaHastaResumen] = useState("");
+  const [codigoAnimalResumen, setCodigoAnimalResumen] = useState("");
+  const [fechaDesdeQuesos, setFechaDesdeQuesos] = useState("");
+  const [fechaHastaQuesos, setFechaHastaQuesos] = useState("");
+  const [fechaDesdeCuajada, setFechaDesdeCuajada] = useState("");
+  const [fechaHastaCuajada, setFechaHastaCuajada] = useState("");
 
   useEffect(() => {
     axios.get("/api/grupo").then((r) => setGrupos(r.data)).catch(console.error);
@@ -134,8 +182,20 @@ export default function ReportesPage() {
     const id = e.target.value;
     setGrupo(id);
     setFamilia("");
-    if (id) loadFamilias(id);
-    else setFamilias([]);
+    if (id) {
+      const grupo = grupos.find((g) => String(g.id_gru) === String(id));
+      if (grupo?.ver_todas_familias) {
+        setLoadingFam(true);
+        axios.get("/api/familia")
+          .then((r) => setFamilias(r.data))
+          .catch(() => console.error("Error al cargar familias"))
+          .finally(() => setLoadingFam(false));
+      } else {
+        loadFamilias(id);
+      }
+    } else {
+      setFamilias([]);
+    }
   };
 
   const handleGenerate = (reporte) => {
@@ -143,6 +203,22 @@ export default function ReportesPage() {
       if (!grupo) return;
       const params = new URLSearchParams({ grupo });
       if (familia) params.set("familia", familia);
+      router.push(`/dashboard/reportes/${reporte.ruta}?${params.toString()}`);
+    } else if (reporte.id === "resumen-leche") {
+      if (!fechaDesdeResumen) return;
+      const params = new URLSearchParams({ fecha_desde: fechaDesdeResumen });
+      if (fechaHastaResumen) params.set("fecha_hasta", fechaHastaResumen);
+      if (codigoAnimalResumen) params.set("codigo_ani", codigoAnimalResumen);
+      router.push(`/dashboard/reportes/${reporte.ruta}?${params.toString()}`);
+    } else if (reporte.id === "quesos") {
+      if (!fechaDesdeQuesos) return;
+      const params = new URLSearchParams({ fecha_desde: fechaDesdeQuesos });
+      if (fechaHastaQuesos) params.set("fecha_hasta", fechaHastaQuesos);
+      router.push(`/dashboard/reportes/${reporte.ruta}?${params.toString()}`);
+    } else if (reporte.id === "cuajada") {
+      if (!fechaDesdeCuajada) return;
+      const params = new URLSearchParams({ fecha_desde: fechaDesdeCuajada });
+      if (fechaHastaCuajada) params.set("fecha_hasta", fechaHastaCuajada);
       router.push(`/dashboard/reportes/${reporte.ruta}?${params.toString()}`);
     } else if (reporte.necesitaFechas) {
       const params = new URLSearchParams();
@@ -269,6 +345,156 @@ export default function ReportesPage() {
                   </div>
                 )}
 
+                {reporte.necesitaCodigoAnimal && (
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                      Código del Animal
+                    </label>
+                    <input
+                      type="text"
+                      value={codigoAnimal}
+                      onChange={(e) => setCodigoAnimal(e.target.value.toUpperCase())}
+                      placeholder="Dejar vacío para mostrar todos"
+                      className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                      style={{
+                        background: "var(--bg-secondary)",
+                        color: "var(--text-primary)",
+                        border: "1px solid var(--border)",
+                      }}
+                    />
+                  </div>
+                )}
+
+                {reporte.id === "resumen-leche" && (
+                  <>
+                    <div className="border-t pt-4 space-y-3" style={{ borderColor: "var(--border)" }}>
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                          Fecha desde
+                        </label>
+                        <input
+                          type="date"
+                          value={fechaDesdeResumen}
+                          onChange={(e) => setFechaDesdeResumen(e.target.value)}
+                          className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                          style={{
+                            background: "var(--bg-secondary)",
+                            color: "var(--text-primary)",
+                            border: "1px solid var(--border)",
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                          Fecha hasta
+                        </label>
+                        <input
+                          type="date"
+                          value={fechaHastaResumen}
+                          onChange={(e) => setFechaHastaResumen(e.target.value)}
+                          className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                          style={{
+                            background: "var(--bg-secondary)",
+                            color: "var(--text-primary)",
+                            border: "1px solid var(--border)",
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                          Código del Animal
+                        </label>
+                        <input
+                          type="text"
+                          value={codigoAnimalResumen}
+                          onChange={(e) => setCodigoAnimalResumen(e.target.value.toUpperCase())}
+                          placeholder="Dejar vacío para mostrar todos"
+                          className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                          style={{
+                            background: "var(--bg-secondary)",
+                            color: "var(--text-primary)",
+                            border: "1px solid var(--border)",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {reporte.id === "quesos" && (
+                  <>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                        Fecha desde
+                      </label>
+                      <input
+                        type="date"
+                        value={fechaDesdeQuesos}
+                        onChange={(e) => setFechaDesdeQuesos(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                        style={{
+                          background: "var(--bg-secondary)",
+                          color: "var(--text-primary)",
+                          border: "1px solid var(--border)",
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                        Fecha hasta
+                      </label>
+                      <input
+                        type="date"
+                        value={fechaHastaQuesos}
+                        onChange={(e) => setFechaHastaQuesos(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                        style={{
+                          background: "var(--bg-secondary)",
+                          color: "var(--text-primary)",
+                          border: "1px solid var(--border)",
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {reporte.id === "cuajada" && (
+                  <>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                        Fecha desde
+                      </label>
+                      <input
+                        type="date"
+                        value={fechaDesdeCuajada}
+                        onChange={(e) => setFechaDesdeCuajada(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                        style={{
+                          background: "var(--bg-secondary)",
+                          color: "var(--text-primary)",
+                          border: "1px solid var(--border)",
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                        Fecha hasta
+                      </label>
+                      <input
+                        type="date"
+                        value={fechaHastaCuajada}
+                        onChange={(e) => setFechaHastaCuajada(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                        style={{
+                          background: "var(--bg-secondary)",
+                          color: "var(--text-primary)",
+                          border: "1px solid var(--border)",
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+
                 {reporte.necesitaFechas && (
                   <>
                     <div className="space-y-1.5">
@@ -308,7 +534,7 @@ export default function ReportesPage() {
 
                 <button
                   onClick={() => handleGenerate(reporte)}
-                  disabled={reporte.necesitaGrupo && !grupo}
+                  disabled={(reporte.necesitaGrupo && !grupo) || (reporte.id === "resumen-leche" && !fechaDesdeResumen) || (reporte.id === "quesos" && !fechaDesdeQuesos) || (reporte.id === "cuajada" && !fechaDesdeCuajada)}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white btn-hover transition-all disabled:opacity-50"
                   style={{ background: "var(--accent)" }}
                 >

@@ -34,8 +34,8 @@ Crear archivo `.env` en la raíz del proyecto:
 ```env
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=db_ganadero
-DB_USER=postgres
+DB_NAME=tu_bd
+DB_USER=tu_user_bd
 DB_PASSWORD=tu_password
 
 NEXTAUTH_SECRET=mi-secreto-seguro

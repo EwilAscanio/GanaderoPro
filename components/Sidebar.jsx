@@ -2,9 +2,9 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Users, Tractor, Droplets, Settings,
+  LayoutDashboard, Users, Tractor,   Droplets, Settings,
   Syringe, Scale, ShoppingCart, UserCircle, Briefcase, FileText,
-  ChevronRight, X, Layers, GitFork, Heart, Baby,
+  ChevronRight, X, Layers, GitFork, Heart, Baby, CookingPot, Milk,
 } from "lucide-react";
 
 const menuItems = [
@@ -17,6 +17,8 @@ const menuItems = [
   { icon: Baby, label: "Parto/Nacimiento", href: "/dashboard/nacimiento" },
   { icon: Scale, label: "Peso", href: "/dashboard/peso" },
   { icon: Droplets, label: "Prod. Leche", href: "/dashboard/produccion-leche" },
+  { icon: CookingPot, label: "Quesos", href: "/dashboard/quesos" },
+  { icon: Milk, label: "Cuajada", href: "/dashboard/cuajada" },
   { icon: ShoppingCart, label: "Ventas", href: "/dashboard/ventas" },
   { icon: UserCircle, label: "Usuarios", href: "/dashboard/usuarios" },
   { icon: Briefcase, label: "Clientes", href: "/dashboard/clientes" },
@@ -77,7 +79,7 @@ export default function Sidebar({ open, onClose }) {
             <button
               key={item.label}
               onClick={() => handleNavigate(item.href)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium sidebar-item ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium sidebar-item hover:cursor-pointer ${
                 active ? "sidebar-item-active" : ""
               }`}
               style={{

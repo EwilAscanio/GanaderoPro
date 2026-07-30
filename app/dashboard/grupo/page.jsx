@@ -256,6 +256,19 @@ function GrupoFormModal({ grupo, onClose, onSaved }) {
             {errors.name_gru && <p className="text-xs" style={{ color: "#ef4444" }}>{errors.name_gru.message}</p>}
           </div>
 
+          <div className="flex items-center gap-3 py-1">
+            <input
+              type="checkbox"
+              id="ver_todas_familias"
+              {...register("ver_todas_familias")}
+              className="w-4 h-4 rounded"
+              style={{ accentColor: "var(--accent)" }}
+            />
+            <label htmlFor="ver_todas_familias" className="text-sm font-medium cursor-pointer select-none" style={{ color: "var(--text-primary)" }}>
+              Habilitar para ver todas las Familias
+            </label>
+          </div>
+
           {error && <p className="text-sm text-center animate-fade-in" style={{ color: "#ef4444" }}>{error}</p>}
 
           <div className="flex gap-3 pt-2">

@@ -12,7 +12,7 @@ export async function GET(request, { params }) {
 
     const { id } = await params;
     const result = await query(
-      "SELECT id_gru, name_gru, created_at FROM grupo WHERE id_gru = $1",
+      "SELECT id_gru, name_gru, created_at, ver_todas_familias FROM grupo WHERE id_gru = $1",
       [id]
     );
 

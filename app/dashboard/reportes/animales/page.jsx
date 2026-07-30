@@ -128,10 +128,20 @@ function ReporteAnimalesContent() {
       return;
     }
     Promise.all([
-      axios.get("/api/grupo").then((r) => setGrupos(r.data)),
-      axios.get("/api/reportes/familias", { params: { grupo } }).then((r) => setFamilias(r.data)),
-      axios.get("/api/reportes/animales", { params: { grupo, ...(familia && { familia }) } }).then((r) => setAnimales(r.data)),
-    ]).catch(console.error).finally(() => setLoading(false));
+      axios.get("/api/grupo"),
+      axios.get("/api/reportes/animales", { params: { grupo, ...(familia && { familia }) } }),
+    ]).then(async ([gruRes, aniRes]) => {
+      setGrupos(gruRes.data);
+      setAnimales(aniRes.data);
+      const selectedGroup = gruRes.data.find((g) => String(g.id_gru) === String(grupo));
+      if (selectedGroup?.ver_todas_familias) {
+        const famRes = await axios.get("/api/familia");
+        setFamilias(famRes.data);
+      } else {
+        const famRes = await axios.get("/api/reportes/familias", { params: { grupo } });
+        setFamilias(famRes.data);
+      }
+    }).catch(console.error).finally(() => setLoading(false));
   }, [grupo, familia, router]);
 
   const handleDownloadPDF = async () => {

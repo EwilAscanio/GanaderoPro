@@ -168,3 +168,21 @@ CREATE TABLE palpacion (
 ALTER TABLE palpacion
 ADD CONSTRAINT fk_palpacion_animal
 FOREIGN KEY (codigo_ani) REFERENCES animal(codigo_ani);
+
+CREATE TABLE quesos (
+  id_que integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  fecha_que date NOT NULL,
+  kg_que decimal(10,2) NOT NULL DEFAULT 0,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE cuajada (
+  id_cua integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  fecha_cua date NOT NULL,
+  kg_cua decimal(10,2) NOT NULL DEFAULT 0,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+30/07/2026
+
+ALTER TABLE grupo ADD COLUMN ver_todas_familias BOOLEAN NOT NULL DEFAULT false;

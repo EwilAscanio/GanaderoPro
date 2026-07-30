@@ -11,7 +11,7 @@ export async function GET() {
     }
 
     const result = await query(
-      "SELECT id_gru, name_gru, created_at FROM grupo ORDER BY id_gru"
+      "SELECT id_gru, name_gru, created_at, ver_todas_familias FROM grupo ORDER BY id_gru"
     );
 
     return NextResponse.json(result.rows);

@@ -84,9 +84,10 @@ function RegistrarAnimalForm() {
     }
   }, [madre]);
 
-  const filteredFamilias = familias.filter(
-    (f) => String(f.id_gru) === String(selectedGrupo)
-  );
+  const selectedGroup = grupos.find((g) => String(g.id_gru) === String(selectedGrupo));
+  const filteredFamilias = selectedGroup?.ver_todas_familias
+    ? familias
+    : familias.filter((f) => String(f.id_gru) === String(selectedGrupo));
 
   const onSubmit = async (data) => {
     setError("");
