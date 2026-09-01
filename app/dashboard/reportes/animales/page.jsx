@@ -41,6 +41,13 @@ function formatDate(dateStr) {
   }
 }
 
+const ordenLabels = {
+  codigo: "Código",
+  chip: "Chip",
+  arete: "Arete",
+  nombre: "Nombre",
+};
+
 function ReportDocument({ animales, grupoName, familiaName, grupo, familia }) {
   const grouped = {};
   for (const a of animales) {
@@ -115,10 +122,12 @@ function ReporteAnimalesContent() {
   const searchParams = useSearchParams();
   const grupo = searchParams.get("grupo") || "";
   const familia = searchParams.get("familia") || "";
+  const orden = searchParams.get("orden") || "codigo";
 
   const [animales, setAnimales] = useState(null);
   const [grupos, setGrupos] = useState([]);
   const [familias, setFamilias] = useState([]);
+  const [ordenSel, setOrdenSel] = useState(orden);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
 
@@ -129,7 +138,7 @@ function ReporteAnimalesContent() {
     }
     Promise.all([
       axios.get("/api/grupo"),
-      axios.get("/api/reportes/animales", { params: { grupo, ...(familia && { familia }) } }),
+      axios.get("/api/reportes/animales", { params: { grupo, ...(familia && { familia }), orden: ordenSel } }),
     ]).then(async ([gruRes, aniRes]) => {
       setGrupos(gruRes.data);
       setAnimales(aniRes.data);
@@ -142,7 +151,7 @@ function ReporteAnimalesContent() {
         setFamilias(famRes.data);
       }
     }).catch(console.error).finally(() => setLoading(false));
-  }, [grupo, familia, router]);
+  }, [grupo, familia, ordenSel, router]);
 
   const handleDownloadPDF = async () => {
     if (!animales || animales.length === 0) return;
@@ -208,6 +217,8 @@ function ReporteAnimalesContent() {
               <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
                 {grupoName}
                 {familiaName ? `  |  ${familiaName}` : "  |  Todas las familias"}
+                {"  |  Orden: "}
+                {ordenLabels[ordenSel] || "Código"}
               </p>
             </div>
             {animales?.length > 0 && (
@@ -236,14 +247,14 @@ function ReporteAnimalesContent() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ background: "var(--bg-secondary)" }}>
-                    <th className="text-left px-4 py-3 font-medium sticky top-0" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)" }}>Código</th>
-                    <th className="text-left px-4 py-3 font-medium sticky top-0" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)" }}>Nombre</th>
-                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden sm:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)" }}>Arete</th>
-                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden sm:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)" }}>Sexo</th>
-                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden md:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)" }}>Fec. Nacim.</th>
-                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden md:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)" }}>Peso</th>
-                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden lg:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)" }}>F. Palpación</th>
-                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden lg:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)" }}>F. Vacunación</th>
+                    <th className="text-left px-4 py-3 font-medium sticky top-0" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)", zIndex: 5 }}>Código</th>
+                    <th className="text-left px-4 py-3 font-medium sticky top-0" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)", zIndex: 5 }}>Nombre</th>
+                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden sm:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)", zIndex: 5 }}>Arete</th>
+                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden sm:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)", zIndex: 5 }}>Sexo</th>
+                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden md:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)", zIndex: 5 }}>Fec. Nacim.</th>
+                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden md:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)", zIndex: 5 }}>Peso</th>
+                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden lg:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)", zIndex: 5 }}>F. Palpación</th>
+                    <th className="text-left px-4 py-3 font-medium sticky top-0 hidden lg:table-cell" style={{ color: "var(--text-muted)", background: "var(--bg-secondary)", zIndex: 5 }}>F. Vacunación</th>
                   </tr>
                 </thead>
                 <tbody>

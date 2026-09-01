@@ -148,6 +148,7 @@ export default function ReportesPage() {
   const [familias, setFamilias] = useState([]);
   const [grupo, setGrupo] = useState("");
   const [familia, setFamilia] = useState("");
+  const [orden, setOrden] = useState("codigo");
   const [loadingFam, setLoadingFam] = useState(false);
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
@@ -203,6 +204,7 @@ export default function ReportesPage() {
       if (!grupo) return;
       const params = new URLSearchParams({ grupo });
       if (familia) params.set("familia", familia);
+      if (orden) params.set("orden", orden);
       router.push(`/dashboard/reportes/${reporte.ruta}?${params.toString()}`);
     } else if (reporte.id === "resumen-leche") {
       if (!fechaDesdeResumen) return;
@@ -321,6 +323,36 @@ export default function ReportesPage() {
                           </option>
                         ))}
                       </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                        Ordenar por
+                      </label>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                        {[
+                          { value: "codigo", label: "Código" },
+                          { value: "chip", label: "Chip" },
+                          { value: "arete", label: "Arete" },
+                          { value: "nombre", label: "Nombre" },
+                        ].map((op) => (
+                          <label
+                            key={op.value}
+                            className="flex items-center gap-1.5 text-sm cursor-pointer"
+                            style={{ color: "var(--text-primary)" }}
+                          >
+                            <input
+                              type="radio"
+                              name="orden"
+                              value={op.value}
+                              checked={orden === op.value}
+                              onChange={(e) => setOrden(e.target.value)}
+                              style={{ accentColor: "var(--accent)" }}
+                            />
+                            {op.label}
+                          </label>
+                        ))}
+                      </div>
                     </div>
                   </>
                 )}
